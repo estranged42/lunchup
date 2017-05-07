@@ -60,9 +60,7 @@ with open(people_file, newline='') as f:
 num_people = len(all_people)
 logging.info("Read in {:n} people from {:s}".format(num_people, people_file))
 
-logging.info("############################")
-logging.info("# Initial Group Placements #")
-logging.info("############################")
+logging.info("## Initial Group Placements")
 
 num_groups = math.floor( num_people / target_group_size )
 logging.info("Making {:n} groups".format(num_groups))
@@ -117,8 +115,7 @@ for i in range(num_mutations):
   # If this mutation resulted in a better score, keep this set as the last set, otherwise
   # ignore this and keep going
   if current_set_score < last_set_score:
-    logging.info("Mutation #{:n}".format(i))
-    logging.info("Better Set Found!")
+    logging.info("Found better score in itteration #{:n}. {:n} -> {:n}".format(i, last_set_score, current_set_score))
     last_group_set = copy.deepcopy(current_group_set)
     last_set_score = current_set_score
   
