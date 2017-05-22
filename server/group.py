@@ -3,13 +3,18 @@ A group class
 '''
 import logging
 import json
+import numpy as np
+import pandas
+import copy
 from random import randrange
 
 class group:
   
-  def __init__(self):
+  def __init__(self, df):
     '''
     Init a new group object.
+    
+    df: A Pandas data_frame containing scores for group history, indexed by emails
     '''
     # List to hold the members of thi group (Person objects)
     self.members = []
@@ -18,6 +23,7 @@ class group:
     self.group_score = 0
     self.group_index = 0
     self.score_average = 0
+    self.history_df = df
     
     # Attribute Counts data structure for the group
     self.att_counts = {}
@@ -36,6 +42,7 @@ class group:
     
     for p in self.members:
       self.group_score += p.get_similarity_score()
+      self.group_score += self.compute_history_score()
       self.group_index += p.get_similarity_index()
       self.score_average = self.group_score / len(self.members)
 
@@ -45,6 +52,10 @@ class group:
 
   def get_attr_counts(self):
     return self.att_counts
+
+
+  def get_members(self):
+    return self.members
   
 
   def compute_stats(self):
@@ -98,8 +109,21 @@ class group:
   
     for p in self.members:
       p.sim_index = p.sim_score / self.att_freq_total * 100
-      logging.debug("{:25s}  Sim Score: {:5n}    Sim Inex: {:5n}".format(p.name, p.sim_score, p.sim_index) )
+      logging.debug("{:25s}  Sim Score: {:5n}    Sim Index: {:5n}".format(p.name, p.sim_score, p.sim_index) )
 
+
+  def compute_history_score(self):
+    history_score = 0
+    temp_members = copy.deepcopy(self.members)
+    for i in range(len(temp_members)):
+      p1 = temp_members.pop()
+      p1email = p1.get_attributes()['email']
+      for j in range(len(temp_members)):
+        p2 = temp_members[j]
+        p2email = p2.get_attributes()['email']
+        p1p2_factor = self.history_df.loc[p1email, p2email]
+        history_score += p1p2_factor
+    return history_score
 
   def remove_random_person(self):
     '''

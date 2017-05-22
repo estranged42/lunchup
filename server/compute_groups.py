@@ -5,6 +5,8 @@ from __future__ import print_function
 import csv
 import math
 import copy
+import numpy as np
+import pandas
 import statistics
 import logging
 from random import randrange
@@ -20,7 +22,7 @@ logging.basicConfig(format=FORMAT)
 target_group_size = 4
 num_mutations = 100000
 
-people_file = "tmp/people.csv"
+people_file = "tmp/beta-testers.csv"
 all_people = []
 last_group_set = []
 current_group_set = []
@@ -41,6 +43,12 @@ def print_set(groups_set, print_groups = False):
 
   logging.info("Total score for this set: {:n}  Var: {:n}".format(set_score, set_variance))
 
+def save_set(groups_set):
+  for g in groups_set:
+    for p in g.get_members():
+      print(p.get_attributes()['email'], end='')
+      print(", ", end='')
+    print("\n", end='')
 
 with open(people_file, newline='') as f:
     reader = csv.reader(f)
@@ -60,6 +68,46 @@ with open(people_file, newline='') as f:
 num_people = len(all_people)
 logging.info("Read in {:n} people from {:s}".format(num_people, people_file))
 
+# Read in group history and assemble history factors for everyone
+history_files = ["tmp/history1.csv", "tmp/history2.csv", "tmp/history3.csv"]
+p_email_list = []
+history_sets = []
+
+for filename in history_files:
+  groups = []
+  with open(filename, newline='') as f:
+      reader = csv.reader(f)
+      logging.debug("Openend CSV file {:s}".format(filename))
+
+      for row in reader:
+        groups.append(row)
+        for p in row:
+          if p not in p_email_list:
+            p_email_list.append(p)
+  # add these groups as a set to history_sets
+  history_sets.append(groups)
+
+num_people = len(p_email_list)
+
+S = np.zeros((num_people, num_people))
+
+history_df = pandas.DataFrame(S, columns=p_email_list, index=p_email_list)
+
+group_mate_factor = 2.0
+for set in history_sets:
+  group_mate_factor = group_mate_factor / 2.0
+  for g in set:
+    g_size = len(g)
+    for i in range(g_size): 
+      p1 = g.pop()
+      for j in range(len(g)):
+        p2 = g[j]
+        print("{:s}:{:s} = {:n}".format(p1, p2, group_mate_factor))
+        # increment both people's grouping factor with each other
+        history_df.set_value(p1, p2, history_df.loc[p1, p2] + group_mate_factor)
+        history_df.set_value(p2, p1, history_df.loc[p2, p1] + group_mate_factor)
+
+# Create Groups
 logging.info("## Initial Group Placements")
 
 num_groups = math.floor( num_people / target_group_size )
@@ -67,7 +115,7 @@ logging.info("Making {:n} groups".format(num_groups))
 
 # Make the groups
 for i in range(num_groups):
-  new_g = group()
+  new_g = group(history_df)
   current_group_set.append(new_g)
 
 people_to_place = all_people
@@ -125,3 +173,5 @@ for i in range(num_mutations):
 # Final Set
 logging.info("Best set after {:n} mutations:".format(num_mutations) )
 print_set(last_group_set, True)
+save_set(last_group_set)
+
