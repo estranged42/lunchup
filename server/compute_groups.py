@@ -20,7 +20,7 @@ FORMAT = '%(asctime)-15s %(filename)s:%(lineno)d %(levelname)s: %(message)s'
 logging.basicConfig(format=FORMAT)
 
 target_group_size = 4
-num_mutations = 100000
+num_mutations = 10000
 
 people_file = "tmp/beta-testers.csv"
 all_people = []
@@ -69,7 +69,8 @@ num_people = len(all_people)
 logging.info("Read in {:n} people from {:s}".format(num_people, people_file))
 
 # Read in group history and assemble history factors for everyone
-history_files = ["tmp/history1.csv", "tmp/history2.csv", "tmp/history3.csv"]
+#history_files = ["tmp/history1.csv", "tmp/history2.csv", "tmp/history3.csv"]
+history_files = []
 p_email_list = []
 history_sets = []
 
@@ -87,9 +88,14 @@ for filename in history_files:
   # add these groups as a set to history_sets
   history_sets.append(groups)
 
-num_people = len(p_email_list)
+# If we don't have any history, then just init the email list with the current group
+if len(p_email_list) == 0:
+  for p in all_people:
+    p_email_list.append( p.get_attributes()['email'] )
 
-S = np.zeros((num_people, num_people))
+num_history_people = len(p_email_list)
+
+S = np.zeros((num_history_people, num_history_people))
 
 history_df = pandas.DataFrame(S, columns=p_email_list, index=p_email_list)
 
