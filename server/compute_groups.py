@@ -22,7 +22,8 @@ logging.basicConfig(format=FORMAT)
 target_group_size = 4
 num_mutations = 10000
 
-people_file = "tmp/beta-testers.csv"
+people_file = "data/participants.csv"
+history_files = ["data/2017-06-01.csv", "data/2017-07-13.csv"]
 all_people = []
 last_group_set = []
 current_group_set = []
@@ -69,8 +70,6 @@ num_people = len(all_people)
 logging.info("Read in {:n} people from {:s}".format(num_people, people_file))
 
 # Read in group history and assemble history factors for everyone
-#history_files = ["tmp/history1.csv", "tmp/history2.csv", "tmp/history3.csv"]
-history_files = []
 p_email_list = []
 history_sets = []
 
