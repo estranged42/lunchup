@@ -9,6 +9,8 @@ The main goal is to develop a method to divide the large group into small groups
 
 The idea for this tool came from the [University of Arizona's IT Leadership Academy][itla]. During the months the Academy ran, there were monthly groups which were formed to go have lunch and discuss a topic for the following session. After the Academy was over, we all agreed that we really liked these lunches, and wanted to find a way to keep them going, even if there's no 'assignment' each month.
 
+[itla]: https://it.arizona.edu/it-leadership-academy
+
 ## Technical Overview
 
 What really got me interested in writing this was discussing algorithms with another ITLA attendee. He was talking about a genetic algorithm he had written to sort incoming medical students into groups. I did a little reading on genetic algorithms and decided this might be a great way to form groups for ongoing ITLA lunch meetings.
