@@ -40,9 +40,13 @@ class group:
   def score_group(self):
     self.compute_stats()
     
+    self.group_score += self.compute_history_score()
+    
+    if self.num_women == 1:
+      self.group_score += 2
+          
     for p in self.members:
       self.group_score += p.get_similarity_score()
-      self.group_score += self.compute_history_score()
       self.group_index += p.get_similarity_index()
       self.score_average = self.group_score / len(self.members)
 
@@ -66,6 +70,7 @@ class group:
     self.att_counts = {}
     self.att_freq = {}
     self.att_freq_total = 0
+    self.num_women = 0
 
     num_people = len(self.members)
 
@@ -81,6 +86,9 @@ class group:
         if v not in self.att_counts[k]:
           self.att_counts[k][v] = 0
         self.att_counts[k][v] += 1
+      # Also count up the number of women in the group
+      if atts['gender'] == 'F':
+        self.num_women += 1
 
     
     # Next we need to get the sum of the frequency of each attribute
@@ -125,6 +133,7 @@ class group:
         history_score += p1p2_factor
     return history_score
 
+  
   def remove_random_person(self):
     '''
     Pick a random person from our group and remove them.  Return the removed person
