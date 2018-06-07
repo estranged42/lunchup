@@ -23,7 +23,15 @@ target_group_size = 4
 num_mutations = 10000
 
 people_file = "data/participants.csv"
-history_files = ["data/2017-06-01.csv", "data/2017-07-13.csv"]
+history_files = [ "data/2017-06-01.csv", 
+                  "data/2017-07-13.csv", 
+                  "data/2017-09-08.csv", 
+                  "data/2017-10-04.csv",
+                  "data/2017-11-02.csv",
+                  "data/2018-04-05.csv",
+                  "data/2018-05-03.csv"
+                ]
+
 all_people = []
 last_group_set = []
 current_group_set = []
@@ -38,7 +46,10 @@ def print_set(groups_set, print_groups = False):
     set_score += g.get_group_score()
     scores.append( g.get_group_score() )
     if print_groups:
-      logging.info(g)
+      for p in g.get_members():
+        att = p.get_attributes()
+        print( "{:s} - {:s}".format(att['name'], att['email']) )
+      print("")
 
   set_variance = statistics.variance(scores)
 
@@ -46,10 +57,10 @@ def print_set(groups_set, print_groups = False):
 
 def save_set(groups_set):
   for g in groups_set:
+    temp_email_list = []
     for p in g.get_members():
-      print(p.get_attributes()['email'], end='')
-      print(", ", end='')
-    print("\n", end='')
+      temp_email_list.append( p.get_attributes()['email'] )
+    print( ",".join(temp_email_list) )
 
 with open(people_file, newline='') as f:
     reader = csv.reader(f)
@@ -87,10 +98,11 @@ for filename in history_files:
   # add these groups as a set to history_sets
   history_sets.append(groups)
 
-# If we don't have any history, then just init the email list with the current group
-if len(p_email_list) == 0:
-  for p in all_people:
-    p_email_list.append( p.get_attributes()['email'] )
+# Add in any new people from the list of current participants
+for p in all_people:
+  p_email = p.get_attributes()['email']
+  if p_email not in p_email_list:
+    p_email_list.append( p_email )
 
 num_history_people = len(p_email_list)
 
